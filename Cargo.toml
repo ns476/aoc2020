@@ -1,0 +1,65 @@
+[package]
+name = "aoc"
+version = "0.1.0"
+authors = ["Nicholas Skehin <nicholas@skeh.in>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+regex = "1"
+lazy_static = "1"
+counter = "0"
+petgraph = "0"
+
+[[bin]]
+name = "one"
+path = "src/one/main.rs"
+
+[[bin]]
+name = "oneplus"
+path = "src/oneplus/main.rs"
+
+[[bin]]
+name = "two"
+path = "src/two/main.rs"
+
+[[bin]]
+name = "twoplus"
+path = "src/twoplus/main.rs"
+
+[[bin]]
+name = "three"
+path = "src/three/main.rs"
+
+[[bin]]
+name = "threeplus"
+path = "src/threeplus/main.rs"
+
+[[bin]]
+name = "four"
+path = "src/four/main.rs"
+
+[[bin]]
+name = "fourplus"
+path = "src/fourplus/main.rs"
+
+[[bin]]
+name = "five"
+path = "src/five/main.rs"
+
+[[bin]]
+name = "fiveplus"
+path = "src/fiveplus/main.rs"
+
+[[bin]]
+name = "six"
+path = "src/six/main.rs"
+
+[[bin]]
+name = "sixplus"
+path = "src/sixplus/main.rs"
+
+[[bin]]
+name = "seven"
+path = "src/seven/main.rs"
