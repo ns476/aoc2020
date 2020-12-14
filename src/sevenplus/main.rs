@@ -2,11 +2,18 @@
 extern crate lazy_static;
 extern crate regex;
 
+#[macro_use]
+extern crate cached;
+use cached::proc_macro::cached;
+use cached::stores::UnboundCache;
+
 extern crate petgraph;
 
 use petgraph::dot::Dot;
 use petgraph::graph::NodeIndex;
 use petgraph::prelude::DiGraph;
+use petgraph::visit::EdgeRef;
+use petgraph::Outgoing;
 use regex::Regex;
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -15,7 +22,7 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 
 fn main() -> Result<(), std::io::Error> {
-    let file = File::open("src/seven/testinput")?;
+    let file = File::open("src/seven/input")?;
 
     lazy_static! {
         static ref PASSPORT_SEP: Regex = Regex::new("\n\n").unwrap();
@@ -25,20 +32,11 @@ fn main() -> Result<(), std::io::Error> {
         .lines()
         .map(|x| x.unwrap())
         .map(|x| parse_bag(&x))
-        .map(|x| {
-            dbg!(&x);
-            x
-        })
         .collect();
 
     let bag_graph = build_specs_graph(bag_specs);
 
-    println!("{:?}", Dot::with_config(&bag_graph.contained_by_graph, &[]));
-
-    let containing_bags = find_containing_bags(&bag_graph, "shiny gold");
-
-    dbg!(&containing_bags);
-    dbg!(containing_bags.len());
+    dbg!(find_bags_inside_shiny_gold(&bag_graph));
 
     Ok(())
 }
@@ -115,26 +113,30 @@ fn build_specs_graph(bag_specs: Vec<BagSpec>) -> BagGraph {
     }
 }
 
-fn find_containing_bags(bag_graph: &BagGraph, bag_name: &str) -> HashSet<String> {
-    let bellman_ford_results = petgraph::algo::bellman_ford(
-        &bag_graph.contained_by_graph,
-        *bag_graph.nodes_by_name.get(bag_name).unwrap(),
-    );
+fn find_bags_inside_shiny_gold(bag_graph: &BagGraph) -> usize {
+    #[cached(
+        type = "UnboundCache<String, usize>",
+        create = "{ UnboundCache::new() }",
+        convert = r#"{ String::from(name) }"#
+    )]
+    fn lookup(bag_graph: &BagGraph, name: &str) -> usize {
+        let node = bag_graph.nodes_by_name.get(name).unwrap();
 
-    let (_, nodes) = bellman_ford_results.unwrap();
+        dbg!(name);
+        let bags_inside = bag_graph
+            .containing_graph
+            .edges_directed(*node, Outgoing)
+            .map(|edge| {
+                let target_node_name = bag_graph.names_by_node.get(&edge.target()).unwrap();
 
-    let mut reachable_node_names = HashSet::default();
+                let bags_inside = lookup(&bag_graph, target_node_name);
+                dbg!((name, target_node_name, edge.weight()));
+                (*edge.weight() as usize) * (bags_inside + 1)
+            })
+            .sum();
 
-    for (idx, predecessor_if_reached) in nodes.iter().enumerate() {
-        match predecessor_if_reached {
-            Some(_) => {
-                reachable_node_names.insert(String::from(
-                    bag_graph.names_by_node.get(&NodeIndex::new(idx)).unwrap(),
-                ));
-            }
-            _ => (),
-        }
+        bags_inside
     }
 
-    reachable_node_names
+    lookup(&bag_graph, "shiny gold")
 }

@@ -37,17 +37,19 @@ fn count_answered_questions(group: &str) -> usize {
     dbg!(group);
     let mut people = group.split("\n").peekable();
 
-    let first = people.peek().map(|x| x.chars().collect::<HashSet<char>>()).unwrap_or(HashSet::new());
+    let first = people
+        .peek()
+        .map(|x| x.chars().collect::<HashSet<char>>())
+        .unwrap_or(HashSet::new());
 
-    let answered_questions = people
-        .fold(first, |cur, person| {
-            person
-                .chars()
-                .collect::<HashSet<char>>()
-                .intersection(&cur)
-                .cloned()
-                .collect::<HashSet<char>>()
-        });
+    let answered_questions = people.fold(first, |cur, person| {
+        person
+            .chars()
+            .collect::<HashSet<char>>()
+            .intersection(&cur)
+            .cloned()
+            .collect::<HashSet<char>>()
+    });
 
     dbg!(&answered_questions);
 

@@ -11,6 +11,7 @@ regex = "1"
 lazy_static = "1"
 counter = "0"
 petgraph = "0"
+cached = "0"
 
 [[bin]]
 name = "one"
@@ -63,3 +64,15 @@ path = "src/sixplus/main.rs"
 [[bin]]
 name = "seven"
 path = "src/seven/main.rs"
+
+[[bin]]
+name = "sevenplus"
+path = "src/sevenplus/main.rs"
+
+[[bin]]
+name = "eight"
+path = "src/eight/main.rs"
+
+[[bin]]
+name = "eightplus"
+path = "src/eightplus/main.rs"
