@@ -56,7 +56,7 @@ fn find_sequence(elems: &[i64], weak_number: i64) -> Option<Vec<i64>> {
     let mut slice: &[i64] = &[];
 
     for i in 0..elems.len() {
-        for j in (i+1)..elems.len() {
+        for j in (i + 1)..elems.len() {
             slice = &elems[i..j];
 
             if slice.iter().sum::<i64>() >= weak_number {

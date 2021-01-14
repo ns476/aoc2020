@@ -1,13 +1,8 @@
-extern crate bounded_vec_deque;
-
-use std::collections::HashSet;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-use bounded_vec_deque::BoundedVecDeque;
-
 fn main() -> Result<(), std::io::Error> {
-    let file = File::open("src/nine/input")?;
+    let file = File::open("src/ten/input")?;
 
     let elems = BufReader::new(file)
         .lines()
@@ -15,59 +10,41 @@ fn main() -> Result<(), std::io::Error> {
         .map(|x| x.parse().unwrap())
         .collect::<Vec<i64>>();
 
-    let weak_number = find_weak_number(&elems);
-    let sequence = find_sequence(&elems, weak_number.unwrap()).unwrap();
+    let jolts = build_jolts(&elems);
 
-    dbg!([sequence.iter().min().unwrap() + sequence.iter().max().unwrap()]);
+    let mut ones = 0;
+    let mut threes = 0;
+
+    for window in jolts.windows(2) {
+        if let [l, h] = window {
+            dbg!(l, h);
+            if h - l == 1 {
+                ones += 1;
+            }
+
+            if h - l == 3 {
+                threes += 1;
+            }
+        }
+    }
+
+    dbg!(ones);
+    dbg!(threes);
+    dbg!(ones * threes);
 
     Ok(())
 }
 
-fn is_sum(elems_in_window: &HashSet<i64>, elem: i64) -> bool {
-    for x in elems_in_window {
-        if elems_in_window.contains(&(elem - x)) {
-            return true;
-        }
-    }
+fn build_jolts(elems: &[i64]) -> Vec<i64> {
+    let max: i64 = *(elems.iter().max().unwrap());
 
-    return false;
-}
+    let mut jolts: Vec<i64> = std::iter::once(&0)
+        .chain(elems.iter())
+        .chain(std::iter::once(&(max + 3)))
+        .cloned()
+        .collect();
 
-fn find_weak_number(elems: &Vec<i64>) -> Option<i64> {
-    let preamble_size = 25;
-    let mut deque: BoundedVecDeque<i64> = BoundedVecDeque::new(preamble_size);
+    jolts.sort_unstable();
 
-    for elem in elems {
-        if deque.is_full() {
-            let elems_in_window: HashSet<i64> = deque.clone().into_iter().collect();
-
-            if !is_sum(&elems_in_window, *elem) {
-                return Some(*elem);
-            }
-        }
-
-        deque.push_back(*elem);
-    }
-
-    return None;
-}
-
-fn find_sequence(elems: &Vec<i64>, weak_number: i64) -> Option<Vec<i64>> {
-    let mut slice: &[i64] = &[];
-
-    for i in 0..elems.len() {
-        for j in (i+1)..elems.len() {
-            slice = &elems[i..j];
-
-            if slice.iter().sum::<i64>() >= weak_number {
-                break;
-            }
-        }
-
-        if slice.iter().sum::<i64>() == weak_number {
-            return Some(slice.to_vec());
-        }
-    }
-
-    None
+    jolts
 }

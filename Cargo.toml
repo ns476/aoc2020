@@ -85,3 +85,11 @@ path = "src/nine/main.rs"
 [[bin]]
 name = "nineplus"
 path = "src/nineplus/main.rs"
+
+[[bin]]
+name = "ten"
+path = "src/ten/main.rs"
+
+[[bin]]
+name = "tenplus"
+path = "src/tenplus/main.rs"

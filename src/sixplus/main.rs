@@ -9,7 +9,6 @@ use std::io::{BufRead, BufReader};
 fn main() -> Result<(), std::io::Error> {
     let file = File::open("src/sixplus/input")?;
 
-
     let file: String = BufReader::new(file)
         .lines()
         .map(|x| x.unwrap())

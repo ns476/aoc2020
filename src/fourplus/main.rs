@@ -65,10 +65,7 @@ fn validate_fields(fields: HashMap<String, String>) -> bool {
         .map(|x| x.to_string())
         .collect::<HashSet<_>>();
 
-    let valid = required_keys
-        .intersection(&valid_keys)
-        .count()
-        == required_keys.len();
+    let valid = required_keys.intersection(&valid_keys).count() == required_keys.len();
 
     println!("valid keys {:?} valid {:?}", valid_keys, valid);
 
