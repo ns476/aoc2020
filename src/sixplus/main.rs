@@ -1,8 +1,6 @@
-#[macro_use]
 extern crate lazy_static;
 extern crate regex;
 
-use regex::Regex;
 use std::collections::HashSet;
 
 use std::fs::File;
@@ -11,9 +9,6 @@ use std::io::{BufRead, BufReader};
 fn main() -> Result<(), std::io::Error> {
     let file = File::open("src/sixplus/input")?;
 
-    lazy_static! {
-        static ref GROUP_SEP: Regex = Regex::new("\n\n").unwrap();
-    }
 
     let file: String = BufReader::new(file)
         .lines()
@@ -21,7 +16,7 @@ fn main() -> Result<(), std::io::Error> {
         .collect::<Vec<_>>()
         .join("\n");
 
-    let groups = GROUP_SEP.split(&file).collect::<Vec<_>>();
+    let groups = file.split("\n\n").collect::<Vec<_>>();
 
     let questions_answered = groups
         .iter()
@@ -35,12 +30,12 @@ fn main() -> Result<(), std::io::Error> {
 
 fn count_answered_questions(group: &str) -> usize {
     dbg!(group);
-    let mut people = group.split("\n").peekable();
+    let mut people = group.split('\n').peekable();
 
     let first = people
         .peek()
         .map(|x| x.chars().collect::<HashSet<char>>())
-        .unwrap_or(HashSet::new());
+        .unwrap_or_default();
 
     let answered_questions = people.fold(first, |cur, person| {
         person

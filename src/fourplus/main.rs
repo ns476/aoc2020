@@ -13,17 +13,13 @@ use std::io::{BufRead, BufReader};
 fn main() -> Result<(), std::io::Error> {
     let file = File::open("src/four/input")?;
 
-    lazy_static! {
-        static ref PASSPORT_SEP: Regex = Regex::new("\n\n").unwrap();
-    }
-
     let file: String = BufReader::new(file)
         .lines()
         .map(|x| x.unwrap())
         .collect::<Vec<_>>()
         .join("\n");
 
-    let passports = PASSPORT_SEP.split(&file).collect::<Vec<_>>();
+    let passports = file.split("\n\n").collect::<Vec<_>>();
 
     println!(
         "{}",
@@ -71,8 +67,7 @@ fn validate_fields(fields: HashMap<String, String>) -> bool {
 
     let valid = required_keys
         .intersection(&valid_keys)
-        .collect::<Vec<_>>()
-        .len()
+        .count()
         == required_keys.len();
 
     println!("valid keys {:?} valid {:?}", valid_keys, valid);
@@ -113,9 +108,9 @@ fn validate_field(k: &str, v: &str) -> bool {
                 .map(|x| x.as_str());
 
             match cm_or_in {
-                Some("cm") => return height.filter(|&x| x >= 150 && x <= 193).is_some(),
-                Some("in") => return height.filter(|&x| x >= 59 && x <= 76).is_some(),
-                _ => return false,
+                Some("cm") => height.filter(|&x| x >= 150 && x <= 193).is_some(),
+                Some("in") => height.filter(|&x| x >= 59 && x <= 76).is_some(),
+                _ => false,
             }
         }
         "hcl" => {
@@ -123,7 +118,7 @@ fn validate_field(k: &str, v: &str) -> bool {
                 static ref COLOR_RE: Regex = Regex::new(r"^#[a-f0-9]{6}$").unwrap();
             }
 
-            return COLOR_RE.is_match(v);
+            COLOR_RE.is_match(v)
         }
         "ecl" => {
             lazy_static! {
@@ -134,14 +129,14 @@ fn validate_field(k: &str, v: &str) -> bool {
                         .collect();
             }
 
-            return ALLOWED_COLORS.contains(v);
+            ALLOWED_COLORS.contains(v)
         }
         "pid" => {
             lazy_static! {
                 static ref PID_RE: Regex = Regex::new("^[0-9]{9}$").unwrap();
             }
 
-            return PID_RE.is_match(v);
+            PID_RE.is_match(v)
         }
         &_ => false,
     }

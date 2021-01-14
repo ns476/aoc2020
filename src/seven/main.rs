@@ -16,11 +16,6 @@ use std::io::{BufRead, BufReader};
 
 fn main() -> Result<(), std::io::Error> {
     let file = File::open("src/seven/testinput")?;
-
-    lazy_static! {
-        static ref PASSPORT_SEP: Regex = Regex::new("\n\n").unwrap();
-    }
-
     let bag_specs = BufReader::new(file)
         .lines()
         .map(|x| x.unwrap())
@@ -43,6 +38,7 @@ fn main() -> Result<(), std::io::Error> {
     Ok(())
 }
 
+#[allow(dead_code)]
 struct BagGraph {
     containing_graph: DiGraph<String, f32>,
     contained_by_graph: DiGraph<String, f32>,
@@ -80,7 +76,7 @@ fn parse_bag(bag_description: &str) -> BagSpec {
 
     BagSpec {
         name: bag_name,
-        bags_inside: bags_inside,
+        bags_inside,
     }
 }
 
@@ -110,8 +106,8 @@ fn build_specs_graph(bag_specs: Vec<BagSpec>) -> BagGraph {
             graph.reverse();
             graph
         },
-        nodes_by_name: nodes_by_name,
-        names_by_node: names_by_node,
+        nodes_by_name,
+        names_by_node,
     }
 }
 
@@ -126,13 +122,10 @@ fn find_containing_bags(bag_graph: &BagGraph, bag_name: &str) -> HashSet<String>
     let mut reachable_node_names = HashSet::default();
 
     for (idx, predecessor_if_reached) in nodes.iter().enumerate() {
-        match predecessor_if_reached {
-            Some(_) => {
-                reachable_node_names.insert(String::from(
-                    bag_graph.names_by_node.get(&NodeIndex::new(idx)).unwrap(),
-                ));
-            }
-            _ => (),
+        if predecessor_if_reached.is_some() {
+            reachable_node_names.insert(String::from(
+                bag_graph.names_by_node.get(&NodeIndex::new(idx)).unwrap(),
+            ));
         }
     }
 

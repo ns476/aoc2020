@@ -2,31 +2,23 @@
 extern crate lazy_static;
 extern crate regex;
 
-#[macro_use]
-extern crate cached;
 use cached::proc_macro::cached;
 use cached::stores::UnboundCache;
 
 extern crate petgraph;
 
-use petgraph::dot::Dot;
 use petgraph::graph::NodeIndex;
 use petgraph::prelude::DiGraph;
 use petgraph::visit::EdgeRef;
 use petgraph::Outgoing;
 use regex::Regex;
 use std::collections::HashMap;
-use std::collections::HashSet;
 
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
 fn main() -> Result<(), std::io::Error> {
     let file = File::open("src/seven/input")?;
-
-    lazy_static! {
-        static ref PASSPORT_SEP: Regex = Regex::new("\n\n").unwrap();
-    }
 
     let bag_specs = BufReader::new(file)
         .lines()
@@ -41,6 +33,7 @@ fn main() -> Result<(), std::io::Error> {
     Ok(())
 }
 
+#[allow(dead_code)]
 struct BagGraph {
     containing_graph: DiGraph<String, f32>,
     contained_by_graph: DiGraph<String, f32>,
@@ -78,7 +71,7 @@ fn parse_bag(bag_description: &str) -> BagSpec {
 
     BagSpec {
         name: bag_name,
-        bags_inside: bags_inside,
+        bags_inside,
     }
 }
 
@@ -108,8 +101,8 @@ fn build_specs_graph(bag_specs: Vec<BagSpec>) -> BagGraph {
             graph.reverse();
             graph
         },
-        nodes_by_name: nodes_by_name,
-        names_by_node: names_by_node,
+        nodes_by_name,
+        names_by_node,
     }
 }
 

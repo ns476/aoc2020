@@ -13,9 +13,6 @@ use std::io::{BufRead, BufReader};
 fn main() -> Result<(), std::io::Error> {
     let file = File::open("src/four/input")?;
 
-    lazy_static! {
-        static ref PASSPORT_SEP: Regex = Regex::new("\n\n").unwrap();
-    }
 
     let file: String = BufReader::new(file)
         .lines()
@@ -23,7 +20,7 @@ fn main() -> Result<(), std::io::Error> {
         .collect::<Vec<_>>()
         .join("\n");
 
-    let passports = PASSPORT_SEP.split(&file).collect::<Vec<_>>();
+    let passports = file.split("\n\n").collect::<Vec<_>>();
 
     println!(
         "{}",
@@ -67,7 +64,7 @@ fn validate_fields(fields: HashMap<String, String>) -> bool {
         .map(|x| x.to_string())
         .collect::<HashSet<_>>();
 
-    required_keys.intersection(&keys).collect::<Vec<_>>().len() == required_keys.len()
+    required_keys.intersection(&keys).count() == required_keys.len()
 }
 
 fn validate_field(_: &str, _: &str) -> bool {

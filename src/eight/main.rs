@@ -1,10 +1,3 @@
-#[macro_use]
-extern crate lazy_static;
-extern crate regex;
-
-extern crate petgraph;
-
-use regex::Regex;
 use std::collections::HashSet;
 use std::str::FromStr;
 
@@ -13,10 +6,6 @@ use std::io::{BufRead, BufReader};
 
 fn main() -> Result<(), std::io::Error> {
     let file = File::open("src/eight/input")?;
-
-    lazy_static! {
-        static ref PASSPORT_SEP: Regex = Regex::new("\n\n").unwrap();
-    }
 
     let instructions: Vec<Instruction> = BufReader::new(file)
         .lines()
@@ -46,17 +35,17 @@ impl FromStr for Instruction {
     type Err = &'static str;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let elems: Vec<_> = s.split(" ").collect();
+        let elems: Vec<_> = s.split(' ').collect();
 
         let instr = elems.get(0).ok_or("No instruction!")?;
         let idx_str = elems.get(1).ok_or("Missing index!")?;
         let idx = idx_str.parse().map_err(|_| "Couldn't parse index!")?;
 
-        match instr {
-            &"acc" => Ok(Instruction::Acc(idx)),
-            &"jmp" => Ok(Instruction::Jmp(idx)),
-            &"nop" => Ok(Instruction::Nop(idx)),
-            &_ => Err("Unknown instruction"),
+        match *instr {
+            "acc" => Ok(Instruction::Acc(idx)),
+            "jmp" => Ok(Instruction::Jmp(idx)),
+            "nop" => Ok(Instruction::Nop(idx)),
+            _ => Err("Unknown instruction"),
         }
     }
 }
@@ -71,7 +60,7 @@ struct Computer {
 impl Computer {
     fn for_instructions(instructions: Vec<Instruction>) -> Computer {
         Computer {
-            instructions: instructions,
+            instructions,
             acc: 0,
             pc: 0,
             executed_instructions: HashSet::new(),
@@ -90,6 +79,6 @@ impl Computer {
     }
 
     fn has_executed_next_instruction(&self) -> bool {
-        return self.executed_instructions.contains(&self.pc);
+        self.executed_instructions.contains(&self.pc)
     }
 }

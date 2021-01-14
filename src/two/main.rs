@@ -29,7 +29,7 @@ fn parse_and_check(str: String) -> bool {
 
     let min: usize = captures.get(1).unwrap().as_str().parse().unwrap();
     let max: usize = captures.get(2).unwrap().as_str().parse().unwrap();
-    let chr = captures.get(3).unwrap().as_str().chars().nth(0).unwrap();
+    let chr = captures.get(3).unwrap().as_str().chars().next().unwrap();
 
     let pwd = captures.get(4).unwrap().as_str();
 

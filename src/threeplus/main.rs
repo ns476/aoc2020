@@ -19,21 +19,20 @@ fn main() -> Result<(), std::io::Error> {
 
     println!("{:?}", trees);
 
-    println!("{}", trees.iter().fold(1, |x, y| x * y));
+    println!("{}", trees.iter().product::<usize>());
 
     Ok(())
 }
 
-fn count_trees(lines: &Vec<Vec<char>>, x_step: usize, y_step: usize) -> usize {
+fn count_trees(lines: &[Vec<char>], x_step: usize, y_step: usize) -> usize {
     let mut x = 0;
     let mut y = 0;
 
     let mut tree_count = 0;
 
     while y < lines.len() {
-        match effective(&lines[y], x) {
-            '#' => tree_count += 1,
-            _ => (),
+        if let '#' = effective(&lines[y], x) {
+            tree_count += 1
         }
 
         y += y_step;
@@ -43,7 +42,7 @@ fn count_trees(lines: &Vec<Vec<char>>, x_step: usize, y_step: usize) -> usize {
     tree_count
 }
 
-fn effective(chars: &Vec<char>, x: usize) -> char {
+fn effective(chars: &[char], x: usize) -> char {
     let wrapped = x % chars.len();
 
     chars[wrapped]

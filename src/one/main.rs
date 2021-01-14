@@ -10,7 +10,7 @@ fn main() -> Result<(), std::io::Error> {
         .map(|x| x.unwrap().parse::<i32>().unwrap())
         .collect::<HashSet<i32>>();
 
-    match sums_to_x(items.clone(), 2020) {
+    match sums_to_x(items, 2020) {
         None => println!("Nothing sums to 2020"),
         Some((fst, snd)) => println!("{} x {} = {}", fst, snd, fst * snd),
     }

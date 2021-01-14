@@ -12,6 +12,7 @@ lazy_static = "1"
 counter = "0"
 petgraph = "0"
 cached = "0"
+bounded-vec-deque = "0"
 
 [[bin]]
 name = "one"
@@ -76,3 +77,11 @@ path = "src/eight/main.rs"
 [[bin]]
 name = "eightplus"
 path = "src/eightplus/main.rs"
+
+[[bin]]
+name = "nine"
+path = "src/nine/main.rs"
+
+[[bin]]
+name = "nineplus"
+path = "src/nineplus/main.rs"
