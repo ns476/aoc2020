@@ -4,13 +4,8 @@ extern crate regex;
 
 extern crate petgraph;
 
-use petgraph::dot::Dot;
-use petgraph::graph::NodeIndex;
-use petgraph::prelude::DiGraph;
 use regex::Regex;
-use std::collections::HashMap;
 use std::collections::HashSet;
-use std::convert::TryFrom;
 use std::str::FromStr;
 
 use std::fs::File;
@@ -29,22 +24,59 @@ fn main() -> Result<(), std::io::Error> {
         .map(|x| x.parse().unwrap())
         .collect();
 
-    dbg!(&instructions);
+    for i in 0..instructions.len() {
+        match uncorrupt(&instructions, i) {
+            Some(uncorrupted) => {
+                let mut computer = Computer::for_instructions(uncorrupted);
 
-    let mut computer = Computer::for_instructions(instructions);
-
-    while !computer.has_executed_next_instruction() && computer.can_step() {
-        computer.step();
+                if run_until_end(&mut computer) {
+                    dbg!(computer.acc);
+                    break;
+                }
+            }
+            None => (),
+        }
     }
-
-    dbg!(computer.acc);
 
     Ok(())
 }
 
-#[derive(Debug)]
+fn uncorrupt(corrupted_instructions: &Vec<Instruction>, index: usize) -> Option<Vec<Instruction>> {
+    match corrupted_instructions[index] {
+        Instruction::Nop(_) | Instruction::Jmp(_) => {
+            let mut fixed = corrupted_instructions.clone();
+            fixed[index] = match fixed[index] {
+                Instruction::Nop(x) => Instruction::Jmp(x),
+                Instruction::Jmp(x) => Instruction::Nop(x),
+                _ => panic!("Unexpected instruction!"),
+            };
+            Some(fixed)
+        }
+        _ => None,
+    }
+}
+
+fn run_until_end(computer: &mut Computer) -> bool {
+    let mut finished_successfully = false;
+    loop {
+        if computer.has_finished() {
+            finished_successfully = true;
+            break;
+        }
+
+        if computer.has_executed_next_instruction() {
+            break;
+        }
+
+        computer.step();
+    }
+
+    finished_successfully
+}
+
+#[derive(Debug, Clone)]
 enum Instruction {
-    Nop,
+    Nop(i32),
     Acc(i32),
     Jmp(i32),
 }
@@ -56,20 +88,14 @@ impl FromStr for Instruction {
         let elems: Vec<_> = s.split(" ").collect();
 
         let instr = elems.get(0).ok_or("No instruction!")?;
-        dbg!(&elems);
-        match instr {
-            &"nop" => Ok(Instruction::Nop),
-            &"acc" | &"jmp" => {
-                let idx_str = elems.get(1).ok_or("Missing index!")?;
-                let idx = idx_str.parse().map_err(|_| "Couldn't parse index!")?;
+        let idx_str = elems.get(1).ok_or("Missing index!")?;
+        let idx = idx_str.parse().map_err(|_| "Couldn't parse index!")?;
 
-                match instr {
-                    &"acc" => Ok(Instruction::Acc(idx)),
-                    &"jmp" => Ok(Instruction::Jmp(idx)),
-                    _ => Err("Unrecognized instruction"),
-                }
-            }
-            _ => Err("Unrecognized instruction"),
+        match instr {
+            &"acc" => Ok(Instruction::Acc(idx)),
+            &"jmp" => Ok(Instruction::Jmp(idx)),
+            &"nop" => Ok(Instruction::Nop(idx)),
+            &_ => Err("Unknown instruction"),
         }
     }
 }
@@ -94,18 +120,20 @@ impl Computer {
     fn step(&mut self) {
         self.executed_instructions.insert(self.pc);
         match self.instructions[self.pc] {
-            Instruction::Acc(x) => self.acc += x,
-            Instruction::Jmp(x) => self.pc = ((self.pc as i32) + (x - 1)) as usize,
-            Instruction::Nop => self.pc = self.instructions.len() - 2,
+            Instruction::Acc(x) => {
+                self.acc += x;
+                self.pc += 1;
+            }
+            Instruction::Jmp(x) => self.pc = ((self.pc as i32) + x) as usize,
+            Instruction::Nop(_) => self.pc += 1,
         }
-        self.pc += 1;
-    }
-
-    fn can_step(&self) -> bool {
-        return self.instructions.get(self.pc).is_some();
     }
 
     fn has_executed_next_instruction(&self) -> bool {
         return self.executed_instructions.contains(&self.pc);
+    }
+
+    fn has_finished(&self) -> bool {
+        return self.instructions.len() <= self.pc;
     }
 }

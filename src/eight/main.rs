@@ -4,13 +4,8 @@ extern crate regex;
 
 extern crate petgraph;
 
-use petgraph::dot::Dot;
-use petgraph::graph::NodeIndex;
-use petgraph::prelude::DiGraph;
 use regex::Regex;
-use std::collections::HashMap;
 use std::collections::HashSet;
-use std::convert::TryFrom;
 use std::str::FromStr;
 
 use std::fs::File;
@@ -29,8 +24,6 @@ fn main() -> Result<(), std::io::Error> {
         .map(|x| x.parse().unwrap())
         .collect();
 
-    dbg!(&instructions);
-
     let mut computer = Computer::for_instructions(instructions);
 
     while !computer.has_executed_next_instruction() {
@@ -44,7 +37,7 @@ fn main() -> Result<(), std::io::Error> {
 
 #[derive(Debug)]
 enum Instruction {
-    Nop,
+    Nop(i32),
     Acc(i32),
     Jmp(i32),
 }
@@ -56,20 +49,14 @@ impl FromStr for Instruction {
         let elems: Vec<_> = s.split(" ").collect();
 
         let instr = elems.get(0).ok_or("No instruction!")?;
-        dbg!(&elems);
-        match instr {
-            &"nop" => Ok(Instruction::Nop),
-            &"acc" | &"jmp" => {
-                let idx_str = elems.get(1).ok_or("Missing index!")?;
-                let idx = idx_str.parse().map_err(|_| "Couldn't parse index!")?;
+        let idx_str = elems.get(1).ok_or("Missing index!")?;
+        let idx = idx_str.parse().map_err(|_| "Couldn't parse index!")?;
 
-                match instr {
-                    &"acc" => Ok(Instruction::Acc(idx)),
-                    &"jmp" => Ok(Instruction::Jmp(idx)),
-                    _ => Err("Unrecognized instruction"),
-                }
-            }
-            _ => Err("Unrecognized instruction"),
+        match instr {
+            &"acc" => Ok(Instruction::Acc(idx)),
+            &"jmp" => Ok(Instruction::Jmp(idx)),
+            &"nop" => Ok(Instruction::Nop(idx)),
+            &_ => Err("Unknown instruction"),
         }
     }
 }
@@ -96,10 +83,7 @@ impl Computer {
         match self.instructions[self.pc] {
             Instruction::Acc(x) => self.acc += x,
             Instruction::Jmp(x) => self.pc = ((self.pc as i32) + (x - 1)) as usize,
-            Instruction::Nop => {
-                dbg!(self.acc);
-                None.unwrap()
-            }
+            Instruction::Nop(_) => (),
         }
 
         self.pc += 1;
