@@ -101,3 +101,11 @@ path = "src/eleven/main.rs"
 [[bin]]
 name = "elevenplus"
 path = "src/elevenplus/main.rs"
+
+[[bin]]
+name = "twelve"
+path = "src/twelve/main.rs"
+
+[[bin]]
+name = "twelveplus"
+path = "src/twelveplus/main.rs"
