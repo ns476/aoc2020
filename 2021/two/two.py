@@ -4,11 +4,11 @@ with open("input") as f:
 depth = 0
 horiz = 0
 for (command, amount) in lines:
-    if command == 'forward':
+    if command == "forward":
         horiz += int(amount)
-    elif command == 'down':
+    elif command == "down":
         depth += int(amount)
-    elif command == 'up':
+    elif command == "up":
         depth -= int(amount)
 
 print(depth * horiz)
